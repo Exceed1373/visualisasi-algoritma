@@ -1,200 +1,211 @@
 'use strict';
-/* TAHAP 2: mesin animasi Sorting.
-   Pola: algoritma menghasilkan daftar langkah (steps) lebih dulu; pemutar hanya menampilkan steps[idx].
-   Satu step = { a: salinan data, cmp: [indeks dibandingkan], swp: [indeks ditukar], piv, rng, done, c, s, txt } */
-const NAMA_SORTING = {
-  bubble: 'Bubble Sort', selection: 'Selection Sort', insertion: 'Insertion Sort',
-  quick: 'Quick Sort', merge: 'Merge Sort'
+/* Visualisasi Sorting (Scene 3).
+   Pola: algoritma dijalankan lebih dulu -> menghasilkan daftar "snapshot" langkah (steps),
+   lalu pemutar (setTimeout) hanya menampilkan snapshot. Ini membuat Jeda/Langkah/Reset sederhana.
+   Menambah algoritma baru: tambahkan satu fungsi di ALGO dan satu baris di INFO + satu kartu di HTML. */
+
+const INFO = { // [nama, terbaik, rata-rata, terburuk]
+  bubble: ['Bubble Sort', 'O(n)', 'O(n²)', 'O(n²)'],
+  selection: ['Selection Sort', 'O(n²)', 'O(n²)', 'O(n²)'],
+  insertion: ['Insertion Sort', 'O(n)', 'O(n²)', 'O(n²)'],
+  quick: ['Quick Sort', 'O(n log n)', 'O(n log n)', 'O(n²)'],
+  merge: ['Merge Sort', 'O(n log n)', 'O(n log n)', 'O(n log n)']
 };
 
-/* ---------- Generator langkah (murni, tanpa DOM) ---------- */
-function buatSteps(algo, data) {
-  const a = data.slice(), n = a.length, steps = [], done = new Set();
-  let c = 0, s = 0; // c = perbandingan, s = pertukaran
-  const snap = (txt, o = {}) => steps.push({
-    a: a.slice(), cmp: o.cmp || [], swp: o.swp || [], piv: o.piv === undefined ? -1 : o.piv,
-    rng: o.rng || null, done: [...done], c, s, txt
-  });
-  const tukar = (i, j) => { [a[i], a[j]] = [a[j], a[i]]; s++; };
-  const rentang = (lo, hi) => Array.from({ length: hi - lo + 1 }, (_, k) => lo + k);
-
-  const algos = {
-    bubble() {
-      for (let i = 0; i < n - 1; i++) {
-        let ada = false;
-        for (let j = 0; j < n - 1 - i; j++) {
-          c++; snap(`Bandingkan ${a[j]} dan ${a[j + 1]}`, { cmp: [j, j + 1] });
-          if (a[j] > a[j + 1]) {
-            const x = a[j], y = a[j + 1];
-            tukar(j, j + 1); ada = true;
-            snap(`${x} > ${y}, tukar posisi`, { swp: [j, j + 1] });
-          }
-        }
-        done.add(n - 1 - i);
-        snap(`${a[n - 1 - i]} sudah di posisi akhir (indeks ${n - 1 - i})`);
-        if (!ada) break; // tidak ada pertukaran: data sudah terurut
-      }
-    },
-    selection() {
-      for (let i = 0; i < n - 1; i++) {
-        let m = i;
-        for (let j = i + 1; j < n; j++) {
-          c++; snap(`Bandingkan ${a[j]} dengan nilai terkecil sementara ${a[m]}`, { cmp: [j], piv: m });
-          if (a[j] < a[m]) m = j;
-        }
-        if (m !== i) {
-          const x = a[i], y = a[m];
-          tukar(i, m); snap(`Tukar ${x} dengan nilai terkecil ${y}`, { swp: [i, m] });
-        }
-        done.add(i);
-        snap(`${a[i]} sudah di posisi akhir (indeks ${i})`);
-      }
-    },
-    insertion() {
-      for (let i = 1; i < n; i++) {
-        for (let j = i; j > 0; j--) {
-          c++; snap(`Bandingkan ${a[j - 1]} dan ${a[j]}`, { cmp: [j - 1, j] });
-          if (a[j - 1] <= a[j]) break;
-          const x = a[j - 1], y = a[j];
-          tukar(j - 1, j); snap(`${x} > ${y}, geser ${y} ke kiri`, { swp: [j - 1, j] });
+/* ---------- 1. Algoritma: tiap fungsi memanggil snap() pada setiap kejadian penting ---------- */
+const ALGO = {
+  bubble({ a, n, k, snap, swap, done }) {
+    for (let i = 0; i < n - 1; i++) {
+      let tukar = false;
+      for (let j = 0; j < n - 1 - i; j++) {
+        k.c++; snap(`Bandingkan ${a[j]} dan ${a[j + 1]}`, { cmp: [j, j + 1] });
+        if (a[j] > a[j + 1]) {
+          const x = a[j], y = a[j + 1];
+          swap(j, j + 1); tukar = true;
+          snap(`${x} > ${y}, tukar posisi`, { swp: [j, j + 1] });
         }
       }
-    },
-    quick() {
-      const qs = (lo, hi) => {
-        if (lo > hi) return;
-        if (lo === hi) { done.add(lo); return; }
-        const p = a[hi]; let i = lo;
-        snap(`Pilih pivot ${p} (indeks ${hi}) untuk bagian ${lo}..${hi}`, { piv: hi });
-        for (let j = lo; j < hi; j++) {
-          c++; snap(`Bandingkan ${a[j]} dengan pivot ${p}`, { cmp: [j], piv: hi });
-          if (a[j] < p) {
-            if (i !== j) {
-              const x = a[i], y = a[j];
-              tukar(i, j); snap(`${y} < ${p}: tukar dengan ${x} (indeks ${i})`, { swp: [i, j], piv: hi });
-            }
-            i++;
-          }
-        }
-        if (i !== hi) { tukar(i, hi); snap(`Tempatkan pivot ${p} di indeks ${i}`, { swp: [i, hi] }); }
-        done.add(i);
-        snap(`Pivot ${p} sudah di posisi akhir (indeks ${i})`, { piv: i });
-        qs(lo, i - 1); qs(i + 1, hi);
-      };
-      qs(0, n - 1);
-    },
-    merge() {
-      const ms = (lo, hi) => {
-        if (lo >= hi) return;
-        const mid = (lo + hi) >> 1;
-        snap(`Bagi indeks ${lo}..${hi} menjadi ${lo}..${mid} dan ${mid + 1}..${hi}`, { rng: [lo, hi] });
-        ms(lo, mid); ms(mid + 1, hi);
-        const out = []; let i = lo, j = mid + 1;
-        while (i <= mid && j <= hi) {
-          c++;
-          const kiri = a[i] <= a[j];
-          out.push(kiri ? a[i] : a[j]);
-          snap(`Bandingkan ${a[i]} (kiri) dan ${a[j]} (kanan), ambil ${out[out.length - 1]}. Hasil sementara: ${out.join(', ')}`,
-            { cmp: [i, j], rng: [lo, hi] });
-          kiri ? i++ : j++;
-        }
-        while (i <= mid) out.push(a[i++]);
-        while (j <= hi) out.push(a[j++]);
-        out.forEach((v, k) => { if (a[lo + k] !== v) s++; a[lo + k] = v; }); // s = elemen yang berpindah posisi
-        snap(`Gabungkan indeks ${lo}..${hi}: ${out.join(', ')}`, { swp: rentang(lo, hi), rng: [lo, hi] });
-      };
-      ms(0, n - 1);
+      done.add(n - 1 - i);
+      if (!tukar) break; // tidak ada pertukaran: data sudah terurut
     }
-  };
+  },
+  selection({ a, n, k, snap, swap, done }) {
+    for (let i = 0; i < n - 1; i++) {
+      let m = i;
+      snap(`Cari nilai terkecil mulai indeks ${i}`, { pivot: m });
+      for (let j = i + 1; j < n; j++) {
+        k.c++; snap(`Bandingkan ${a[j]} dengan minimum sementara ${a[m]}`, { cmp: [j], pivot: m });
+        if (a[j] < a[m]) { m = j; snap(`${a[m]} menjadi minimum baru`, { pivot: m }); }
+      }
+      if (m !== i) {
+        const x = a[i], y = a[m];
+        swap(i, m); snap(`Tukar minimum ${y} dengan ${x}`, { swp: [i, m] });
+      }
+      done.add(i);
+    }
+  },
+  insertion({ a, n, k, snap, swap, done }) {
+    for (let i = 1; i < n; i++) {
+      done.clear(); for (let x = 0; x < i; x++) done.add(x);
+      snap(`Ambil ${a[i]} untuk disisipkan ke bagian kiri yang terurut`, { pivot: i });
+      for (let p = i; p > 0; p--) {
+        k.c++; snap(`Bandingkan ${a[p - 1]} dan ${a[p]}`, { cmp: [p - 1, p] });
+        if (a[p - 1] <= a[p]) break;
+        const x = a[p - 1], y = a[p];
+        swap(p - 1, p); snap(`${x} > ${y}, geser ${y} ke kiri`, { swp: [p - 1, p] });
+      }
+    }
+  },
+  quick({ a, n, k, snap, swap, done }) { // partisi Lomuto, pivot = elemen terakhir
+    const qs = (lo, hi) => {
+      if (lo > hi) return;
+      if (lo === hi) { done.add(lo); return; }
+      const p = a[hi]; let i = lo;
+      snap(`Pilih pivot ${p}, partisi indeks ${lo}–${hi}`, { pivot: hi });
+      for (let j = lo; j < hi; j++) {
+        k.c++; snap(`Bandingkan ${a[j]} dengan pivot ${p}`, { cmp: [j], pivot: hi });
+        if (a[j] < p) {
+          if (i !== j) {
+            const x = a[i], y = a[j];
+            swap(i, j); snap(`${y} < ${p}, tukar dengan ${x}`, { swp: [i, j], pivot: hi });
+          }
+          i++;
+        }
+      }
+      if (i !== hi) { swap(i, hi); snap(`Tempatkan pivot ${p} di indeks ${i}`, { swp: [i, hi] }); }
+      done.add(i);
+      snap(`Pivot ${p} sudah berada di posisi akhir (indeks ${i})`, { pivot: i });
+      qs(lo, i - 1); qs(i + 1, hi);
+    };
+    qs(0, n - 1);
+  },
+  merge({ a, n, k, snap }) { // "pertukaran" = pemindahan elemen ke hasil gabungan
+    const ms = (lo, hi) => {
+      if (lo >= hi) return;
+      const mid = (lo + hi) >> 1, range = [lo, hi];
+      snap(`Bagi indeks ${lo}–${hi} menjadi ${lo}–${mid} dan ${mid + 1}–${hi}`, { range });
+      ms(lo, mid); ms(mid + 1, hi);
+      const L = a.slice(lo, mid + 1), R = a.slice(mid + 1, hi + 1), M = [];
+      let i = 0, j = 0;
+      const view = () => [...a.slice(0, lo), ...M, ...L.slice(i), ...R.slice(j), ...a.slice(hi + 1)];
+      while (i < L.length && j < R.length) {
+        k.c++;
+        snap(`Bandingkan ${L[i]} (kiri) dan ${R[j]} (kanan)`, { arr: view(), cmp: [lo + M.length, lo + M.length + L.length - i], range });
+        M.push(L[i] <= R[j] ? L[i++] : R[j++]); k.s++;
+        snap(`Pindahkan ${M[M.length - 1]} ke hasil gabungan`, { arr: view(), swp: [lo + M.length - 1], range });
+      }
+      k.s += L.length - i + R.length - j;
+      M.push(...L.slice(i), ...R.slice(j));
+      M.forEach((v, x) => { a[lo + x] = v; });
+      snap(`Hasil gabungan indeks ${lo}–${hi}: ${M.join(', ')}`, { range });
+    };
+    ms(0, n - 1);
+  }
+};
 
-  snap('Data awal: ' + a.join(', '));
-  algos[algo]();
-  for (let k = 0; k < n; k++) done.add(k);
-  snap(`Selesai! Semua elemen terurut. Perbandingan: ${c}, pertukaran: ${s}`);
+/* ---------- 2. Pembuat langkah ---------- */
+function buatLangkah(algo, data) {
+  const a = data.slice(), n = a.length, steps = [], done = new Set(), k = { c: 0, s: 0 };
+  const snap = (msg, o = {}) => steps.push({
+    arr: o.arr || a.slice(), cmp: o.cmp || [], swp: o.swp || [], pivot: o.pivot ?? -1,
+    range: o.range || null, done: [...done], msg, c: k.c, s: k.s
+  });
+  const swap = (i, j) => { [a[i], a[j]] = [a[j], a[i]]; k.s++; };
+  const [nama, b, r, t] = INFO[algo];
+  snap(`${nama}: kompleksitas waktu terbaik ${b}, rata-rata ${r}, terburuk ${t}. Tekan Mulai atau Langkah.`);
+  ALGO[algo]({ a, n, k, snap, swap, done });
+  for (let i = 0; i < n; i++) done.add(i);
+  snap(`Selesai! Semua elemen terurut.${algo === 'merge' ? ' (Pada Merge Sort, pertukaran dihitung sebagai pemindahan elemen.)' : ''}`);
   return steps;
 }
 
-/* ---------- Antarmuka & pemutar ---------- */
+/* ---------- 3. Antarmuka & pemutar ---------- */
 document.addEventListener('DOMContentLoaded', () => {
-  const state = initPemilihAlgoritma(NAMA_SORTING);
+  const state = initPemilihAlgoritma(Object.fromEntries(Object.entries(INFO).map(([id, v]) => [id, v[0]])));
   const $ = (id) => document.getElementById(id);
   const stage = $('stage');
-  const KECEPATAN = [1000, 700, 450, 220, 80]; // ms per langkah (slider 1-5)
-  const S = { data: [], steps: [], idx: 0, max: 1, timer: null };
-  const akhir = () => S.idx >= S.steps.length - 1;
+  const P = { data: [], steps: [], idx: 0, timer: null, bars: [], max: 1 };
+  const JEDA_MS = [1000, 600, 350, 180, 60]; // sesuai slider kecepatan 1–5
+  const MIN_N = 5, MAX_N = 30;
 
-  function galat(msg) { $('pesan-galat').textContent = msg || ''; $('pesan-galat').hidden = !msg; }
+  const terakhir = () => P.steps.length - 1;
+  const berjalan = () => P.timer !== null;
+  const jeda = () => { clearTimeout(P.timer); P.timer = null; if (P.steps.length) perbaruiTombol(); };
+  const tampilGalat = (msg) => { $('pesan-galat').textContent = msg; $('pesan-galat').hidden = !msg; };
 
-  function tombol() {
-    const jalan = S.timer !== null;
-    $('btn-mulai').disabled = jalan;
-    $('btn-jeda').disabled = !jalan;
-    $('btn-langkah').disabled = jalan || akhir();
+  function kelas(st, i) {
+    const c = st.swp.includes(i) ? 'swap' : st.cmp.includes(i) ? 'compare' : st.pivot === i ? 'pivot' : st.done.includes(i) ? 'done' : '';
+    const redup = st.range && (i < st.range[0] || i > st.range[1]) ? ' dim' : '';
+    return `bar ${c}${redup}`.trim();
   }
-  function stop() { clearTimeout(S.timer); S.timer = null; tombol(); }
-
-  function bangun() {
-    stage.innerHTML = '';
-    stage.classList.toggle('many', S.data.length > 18);
-    S.data.forEach(() => { const b = document.createElement('div'); b.className = 'bar'; stage.appendChild(b); });
-  }
-  function tampil() {
-    const st = S.steps[S.idx];
-    st.a.forEach((v, i) => {
-      const b = stage.children[i];
-      b.style.height = Math.max(6, (v / S.max) * 100) + '%';
-      b.textContent = v; b.title = v;
-      const warna = (st.swp.includes(i) || st.piv === i) ? ' swap' : st.cmp.includes(i) ? ' compare' : st.done.includes(i) ? ' done' : '';
-      const redup = st.rng && (i < st.rng[0] || i > st.rng[1]) ? ' dim' : '';
-      b.className = 'bar' + warna + redup;
+  function render() {
+    const st = P.steps[P.idx];
+    P.bars.forEach((b, i) => {
+      b.style.height = `${Math.max((st.arr[i] / P.max) * 100, 6)}%`;
+      b.textContent = st.arr[i];
+      b.className = kelas(st, i);
     });
-    $('penjelasan').textContent = st.txt;
+    $('penjelasan').textContent = st.msg;
     $('n-banding').textContent = st.c;
     $('n-tukar').textContent = st.s;
+    perbaruiTombol();
   }
-  function siapkan() {
-    stop();
-    S.steps = buatSteps(state.algo, S.data);
-    S.idx = 0; S.max = Math.max(...S.data);
-    bangun(); tampil(); tombol();
+  function perbaruiTombol() {
+    const selesai = P.idx === terakhir();
+    $('btn-mulai').disabled = berjalan();
+    $('btn-mulai').textContent = selesai ? 'Ulangi' : 'Mulai';
+    $('btn-jeda').disabled = !berjalan();
+    $('btn-langkah').disabled = selesai;
   }
-  function dataBaru(arr) { S.data = arr; siapkan(); }
 
+  function susun() { jeda(); P.steps = buatLangkah(state.algo, P.data); P.idx = 0; render(); }
+  function muatData(data) {
+    P.data = data; P.max = Math.max(...data);
+    stage.innerHTML = '';
+    P.bars = data.map(() => stage.appendChild(document.createElement('div')));
+    stage.classList.toggle('padat', data.length > 18);
+    susun();
+  }
+
+  /* kontrol animasi */
+  function mulai() {
+    if (berjalan()) return;
+    if (P.idx === terakhir()) P.idx = 0;
+    const tick = () => {
+      P.idx++;
+      P.timer = P.idx < terakhir() ? setTimeout(tick, JEDA_MS[$('input-kecepatan').value - 1]) : null;
+      render();
+    };
+    tick();
+  }
+  function langkah() { jeda(); if (P.idx < terakhir()) { P.idx++; render(); } }
+  function reset() { jeda(); P.idx = 0; render(); }
+
+  /* pengaturan data + validasi */
   function acak() {
     const n = Number($('input-jumlah').value);
-    if (!Number.isInteger(n) || n < 5 || n > 30) { galat('Jumlah data harus bilangan bulat 5–30.'); return; }
-    galat();
-    dataBaru(Array.from({ length: n }, () => 10 + Math.floor(Math.random() * 90)));
+    if (!Number.isInteger(n) || n < MIN_N || n > MAX_N) return tampilGalat(`Jumlah data harus bilangan bulat ${MIN_N}–${MAX_N}.`);
+    tampilGalat('');
+    muatData(Array.from({ length: n }, () => 5 + Math.floor(Math.random() * 95)));
   }
-  function manual() {
-    const p = $('input-manual').value.trim().split(/[\s,;]+/).filter(Boolean);
-    if (p.length < 2 || p.length > 30 || !p.every((x) => /^\d{1,3}$/.test(x) && Number(x) > 0)) {
-      galat('Input tidak valid: masukkan 2–30 angka bulat (1–999) dipisah koma.'); return;
-    }
-    galat();
-    dataBaru(p.map(Number));
+  function terapkanManual() {
+    const token = $('input-manual').value.split(/[\s,;]+/).filter(Boolean);
+    if (!token.length) return tampilGalat('Masukkan angka dipisahkan koma, contoh: 80, 30, 55.');
+    const salah = token.find((t) => !/^\d+$/.test(t) || +t < 1 || +t > 99);
+    if (salah) return tampilGalat(`"${salah}" tidak valid. Gunakan bilangan bulat 1–99.`);
+    if (token.length < 2 || token.length > MAX_N) return tampilGalat(`Jumlah data harus 2–${MAX_N} angka (sekarang ${token.length}).`);
+    tampilGalat('');
+    muatData(token.map(Number));
   }
 
-  function tick() {
-    if (!akhir()) { S.idx++; tampil(); }
-    S.timer = akhir() ? null : setTimeout(tick, KECEPATAN[$('input-kecepatan').value - 1]);
-    tombol();
-  }
-  function mulai() {
-    if (akhir()) { S.idx = 0; tampil(); }
-    S.timer = setTimeout(tick, 200);
-    tombol();
-  }
-  function langkah() { if (!akhir()) { S.idx++; tampil(); } tombol(); }
-
-  $('btn-acak').addEventListener('click', acak);
-  $('btn-terapkan').addEventListener('click', manual);
-  $('input-manual').addEventListener('keydown', (e) => { if (e.key === 'Enter') manual(); });
+  $('btn-buka').addEventListener('click', () => (P.data.length ? susun() : muatData(Array.from({ length: 8 }, () => 5 + Math.floor(Math.random() * 95)))));
+  $('btn-ganti').addEventListener('click', jeda);
   $('btn-mulai').addEventListener('click', mulai);
-  $('btn-jeda').addEventListener('click', stop);
+  $('btn-jeda').addEventListener('click', jeda);
   $('btn-langkah').addEventListener('click', langkah);
-  $('btn-reset').addEventListener('click', siapkan); // ulang dari awal dengan data yang sama
-  document.addEventListener('algo:buka', () => { S.data.length ? siapkan() : acak(); });
-  document.addEventListener('algo:ganti', stop);
-  $('btn-jeda').disabled = true;
+  $('btn-reset').addEventListener('click', reset);
+  $('btn-acak').addEventListener('click', acak);
+  $('input-jumlah').addEventListener('change', acak);
+  $('btn-terapkan').addEventListener('click', terapkanManual);
+  $('input-manual').addEventListener('keydown', (e) => { if (e.key === 'Enter') terapkanManual(); });
 });

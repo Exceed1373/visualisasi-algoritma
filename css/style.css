@@ -73,3 +73,7 @@ footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid var(--line);color:v
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .bar.dim{opacity:.35}
 .stage.many .bar{font-size:0}
+/* sorting: pivot, di luar rentang (Merge Sort), mode padat */
+.bar.pivot{background:var(--c-swap);color:#111;outline:3px dashed var(--ink);outline-offset:-3px}
+.bar.dim{opacity:.3}
+.stage.padat .bar{font-size:0}
