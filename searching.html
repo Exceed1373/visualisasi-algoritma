@@ -39,21 +39,23 @@
     <li><span class="dot compare"></span>Diperiksa</li>
     <li><span class="dot swap"></span>Tengah (mid)</li>
     <li><span class="dot done"></span>Ditemukan</li>
+    <li><span class="dot dim"></span>Sudah dilewati / di luar rentang</li>
   </ul>
   <div class="controls">
-    <button id="btn-acak" class="btn ghost" disabled>Data acak</button>
-    <label>Manual <input id="input-manual" type="text" placeholder="mis. 3, 8, 12, 19" disabled></label>
-    <label>Target <input id="input-target" type="number" value="25" disabled></label>
-    <label>Kecepatan <input id="input-kecepatan" type="range" min="1" max="5" value="3" disabled></label>
+    <button id="btn-acak" class="btn ghost">Data acak</button>
+    <label>Manual <input id="input-manual" type="text" placeholder="mis. 3, 8, 12, 19"></label>
+    <button id="btn-terapkan" class="btn ghost">Terapkan</button>
+    <label>Target <input id="input-target" type="number" value="25"></label>
+    <label>Kecepatan <input id="input-kecepatan" type="range" min="1" max="5" value="3"></label>
   </div>
   <p id="pesan-galat" class="galat" role="alert" hidden></p>
   <p id="peringatan" class="info" role="status" hidden>Binary Search butuh data terurut. Data diurutkan otomatis.</p>
   <div id="stage" class="stage cells" aria-label="Deretan data"></div>
   <div class="controls">
-    <button id="btn-mulai" class="btn" disabled>Mulai</button>
-    <button id="btn-jeda" class="btn ghost" disabled>Jeda</button>
-    <button id="btn-langkah" class="btn ghost" disabled>Langkah</button>
-    <button id="btn-reset" class="btn ghost" disabled>Reset</button>
+    <button id="btn-mulai" class="btn">Mulai</button>
+    <button id="btn-jeda" class="btn ghost">Jeda</button>
+    <button id="btn-langkah" class="btn ghost">Langkah</button>
+    <button id="btn-reset" class="btn ghost">Reset</button>
   </div>
   <div id="penjelasan" class="info" aria-live="polite">Penjelasan langkah akan tampil di sini.</div>
   <p class="counter">Langkah: <span id="n-langkah">0</span> | Hasil: <span id="hasil">belum dimulai</span></p>

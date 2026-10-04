@@ -77,3 +77,9 @@ footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid var(--line);color:v
 .bar.pivot{background:var(--c-swap);color:#111;outline:3px dashed var(--ink);outline-offset:-3px}
 .bar.dim{opacity:.3}
 .stage.padat .bar{font-size:0}
+/* searching: sel data dengan penanda low/mid/high */
+.cell{display:flex;flex-direction:column;align-items:center}
+.cell .mark{min-height:1.3em;font-size:.75rem;font-weight:700}
+.cell .val{font-size:1.1rem}
+.cell.dim{opacity:.4}
+.dot.dim{background:var(--c-idle);opacity:.4}
