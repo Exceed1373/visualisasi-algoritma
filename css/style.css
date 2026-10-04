@@ -83,3 +83,7 @@ footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid var(--line);color:v
 .cell .val{font-size:1.1rem}
 .cell.dim{opacity:.4}
 .dot.dim{background:var(--c-idle);opacity:.4}
+/* searching: sel data berindeks + penanda low/mid/high */
+.cell span{font-size:1.15rem}
+.cell .penanda{min-height:1.3em;font-size:.7rem;font-weight:700}
+.cell.dim{opacity:.35}

@@ -21,5 +21,5 @@ Buka `index.html` di peramban. Semua tautan memakai path relatif, jadi aman untu
 ## Tahap pengerjaan
 1. Struktur, navigasi, halaman, dan tata letak (selesai).
 2. Mesin animasi Sorting (5 algoritma) (selesai).
-3. Mesin animasi Searching (Linear, Binary).
+3. Mesin animasi Searching (selesai).
 4. Pengujian, responsivitas, dan perapian.
