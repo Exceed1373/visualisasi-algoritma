@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Searching | VisuAlgo PTIK</title>
+<meta name="description" content="Media pembelajaran interaktif visualisasi algoritma Sorting dan Searching untuk mahasiswa PTIK.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar"><div class="container nav-inner">
+  <a class="brand" href="index.html">VisuAlgo <span>PTIK</span></a>
+  <button class="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <nav id="menu" aria-label="Navigasi utama">
+    <a href="index.html">Beranda</a><a href="sorting.html">Sorting</a><a href="searching.html">Searching</a><a href="petunjuk.html">Petunjuk</a>
+  </nav>
+</div></header>
+<main class="container">
+<section id="pilih" class="section">
+  <h1>Searching</h1>
+  <p>Pilih satu algoritma, baca ringkasannya, lalu buka visualisasi.</p>
+  <div id="algo-list" class="grid">
+    <button class="card algo-card" data-algo="linear" aria-pressed="false"><h2>Linear Search</h2><p>Memeriksa elemen satu per satu dari indeks awal sampai target ditemukan atau data habis.</p></button>
+    <button class="card algo-card" data-algo="binary" aria-pressed="false"><h2>Binary Search</h2><p>Pada data terurut, membandingkan target dengan elemen tengah lalu membuang separuh ruang pencarian.</p></button>
+  </div>
+  <h2>Kompleksitas waktu</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Algoritma</th><th>Terbaik</th><th>Rata-rata</th><th>Terburuk</th></tr>
+    <tr><td>Linear Search</td><td>O(1)</td><td>O(n)</td><td>O(n)</td></tr>
+    <tr><td>Binary Search</td><td>O(1)</td><td>O(log n)</td><td>O(log n)</td></tr>
+  </table></div>
+  <p><button id="btn-buka" class="btn" disabled>Buka visualisasi</button></p>
+</section>
+
+<section id="viz" class="section" hidden>
+  <div class="viz-head"><h1 id="algo-title">Searching</h1><button id="btn-ganti" class="btn ghost">Ganti algoritma</button></div>
+  <ul class="legend">
+    <li><span class="dot idle"></span>Belum diperiksa</li>
+    <li><span class="dot compare"></span>Diperiksa</li>
+    <li><span class="dot swap"></span>Tengah (mid)</li>
+    <li><span class="dot done"></span>Ditemukan</li>
+  </ul>
+  <div class="controls">
+    <button id="btn-acak" class="btn ghost" disabled>Data acak</button>
+    <label>Manual <input id="input-manual" type="text" placeholder="mis. 3, 8, 12, 19" disabled></label>
+    <label>Target <input id="input-target" type="number" value="25" disabled></label>
+    <label>Kecepatan <input id="input-kecepatan" type="range" min="1" max="5" value="3" disabled></label>
+  </div>
+  <p id="pesan-galat" class="galat" role="alert" hidden></p>
+  <p id="peringatan" class="info" role="status" hidden>Binary Search butuh data terurut. Data diurutkan otomatis.</p>
+  <div id="stage" class="stage cells" aria-label="Deretan data"></div>
+  <div class="controls">
+    <button id="btn-mulai" class="btn" disabled>Mulai</button>
+    <button id="btn-jeda" class="btn ghost" disabled>Jeda</button>
+    <button id="btn-langkah" class="btn ghost" disabled>Langkah</button>
+    <button id="btn-reset" class="btn ghost" disabled>Reset</button>
+  </div>
+  <div id="penjelasan" class="info" aria-live="polite">Penjelasan langkah akan tampil di sini.</div>
+  <p class="counter">Langkah: <span id="n-langkah">0</span> | Hasil: <span id="hasil">belum dimulai</span></p>
+</section>
+</main>
+<footer><div class="container">Media pembelajaran hasil penelitian pengembangan (ADDIE) &ndash; [Nama Peneliti], Program Studi PTIK</div></footer>
+<script src="js/main.js"></script>
+<script src="js/searching.js"></script>
+</body></html>

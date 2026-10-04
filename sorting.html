@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorting | VisuAlgo PTIK</title>
+<meta name="description" content="Media pembelajaran interaktif visualisasi algoritma Sorting dan Searching untuk mahasiswa PTIK.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar"><div class="container nav-inner">
+  <a class="brand" href="index.html">VisuAlgo <span>PTIK</span></a>
+  <button class="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <nav id="menu" aria-label="Navigasi utama">
+    <a href="index.html">Beranda</a><a href="sorting.html">Sorting</a><a href="searching.html">Searching</a><a href="petunjuk.html">Petunjuk</a>
+  </nav>
+</div></header>
+<main class="container">
+<section id="pilih" class="section">
+  <h1>Sorting</h1>
+  <p>Pilih satu algoritma, baca ringkasannya, lalu buka visualisasi.</p>
+  <div id="algo-list" class="grid">
+    <button class="card algo-card" data-algo="bubble" aria-pressed="false"><h2>Bubble Sort</h2><p>Membandingkan dua elemen bersebelahan dan menukarnya bila urutannya salah, diulang sampai terurut.</p></button>
+    <button class="card algo-card" data-algo="selection" aria-pressed="false"><h2>Selection Sort</h2><p>Mencari elemen terkecil di bagian yang belum terurut, lalu menempatkannya di posisi paling depan.</p></button>
+    <button class="card algo-card" data-algo="insertion" aria-pressed="false"><h2>Insertion Sort</h2><p>Menyisipkan tiap elemen ke posisi yang tepat pada bagian kiri yang sudah terurut.</p></button>
+    <button class="card algo-card" data-algo="quick" aria-pressed="false"><h2>Quick Sort</h2><p>Memilih pivot, membagi data menjadi lebih kecil dan lebih besar dari pivot, lalu mengurutkan tiap bagian.</p></button>
+    <button class="card algo-card" data-algo="merge" aria-pressed="false"><h2>Merge Sort</h2><p>Membagi data menjadi dua bagian, mengurutkan masing-masing, lalu menggabungkannya kembali.</p></button>
+  </div>
+  <h2>Kompleksitas waktu</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Algoritma</th><th>Terbaik</th><th>Rata-rata</th><th>Terburuk</th></tr>
+    <tr><td>Bubble Sort</td><td>O(n)</td><td>O(n&sup2;)</td><td>O(n&sup2;)</td></tr>
+    <tr><td>Selection Sort</td><td>O(n&sup2;)</td><td>O(n&sup2;)</td><td>O(n&sup2;)</td></tr>
+    <tr><td>Insertion Sort</td><td>O(n)</td><td>O(n&sup2;)</td><td>O(n&sup2;)</td></tr>
+    <tr><td>Quick Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n&sup2;)</td></tr>
+    <tr><td>Merge Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td></tr>
+  </table></div>
+  <p><button id="btn-buka" class="btn" disabled>Buka visualisasi</button></p>
+</section>
+
+<section id="viz" class="section" hidden>
+  <div class="viz-head"><h1 id="algo-title">Sorting</h1><button id="btn-ganti" class="btn ghost">Ganti algoritma</button></div>
+  <ul class="legend">
+    <li><span class="dot idle"></span>Belum diproses</li>
+    <li><span class="dot compare"></span>Dibandingkan</li>
+    <li><span class="dot swap"></span>Ditukar</li>
+    <li><span class="dot done"></span>Terurut</li>
+  </ul>
+  <div class="controls">
+    <button id="btn-acak" class="btn ghost">Acak</button>
+    <label>Manual <input id="input-manual" type="text" placeholder="mis. 80, 30, 55"></label>
+    <label>Jumlah <input id="input-jumlah" type="number" min="5" max="30" value="8"></label>
+    <label>Kecepatan <input id="input-kecepatan" type="range" min="1" max="5" value="3"></label>
+  </div>
+  <p id="pesan-galat" class="galat" role="alert" hidden></p>
+  <div id="stage" class="stage" aria-label="Area batang data"></div>
+  <div class="controls">
+    <button id="btn-mulai" class="btn">Mulai</button>
+    <button id="btn-jeda" class="btn ghost">Jeda</button>
+    <button id="btn-langkah" class="btn ghost">Langkah</button>
+    <button id="btn-reset" class="btn ghost">Reset</button>
+  </div>
+  <div id="penjelasan" class="info" aria-live="polite">Penjelasan langkah akan tampil di sini.</div>
+  <p class="counter">Perbandingan: <span id="n-banding">0</span> | Pertukaran: <span id="n-tukar">0</span></p>
+</section>
+</main>
+<footer><div class="container">Media pembelajaran hasil penelitian pengembangan (ADDIE) &ndash; [Nama Peneliti], Program Studi PTIK</div></footer>
+<script src="js/main.js"></script>
+<script src="js/sorting.js"></script>
+</body></html>
